@@ -1,6 +1,6 @@
 import queue
 from Core.State import GenerationState
-from Core.Tool import clearQueue
+from Utils.Tool import clearQueue
 from Listener.Faster_Whisper import audio_to_text
 from Listener.SileroVAD import AudioListener
 

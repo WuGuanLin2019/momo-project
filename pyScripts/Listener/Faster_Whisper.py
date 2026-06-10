@@ -1,18 +1,20 @@
 from faster_whisper import WhisperModel
+from Utils.Tool import getAudioFloatFromWav
+from Utils.Timer import SmallTimer
 
 # 配置
 FS = 16000  # 采样率
 CHANNELS = 1  # 单声道
-AUDIO_OUTPUT_FILE = "Temp/inputWords.wav"
 
-
-print("加载Whisper模型...")
-model = WhisperModel(
-    "medium",
-    device="cuda",
-    compute_type="float16"
-)
-print("模型加载完成。")
+with SmallTimer("加载Whisper模型"):
+    print("加载Whisper模型...")
+    model = WhisperModel(
+        # "large-v3",
+        "small",
+        device="cuda",
+        compute_type="float16"
+    )
+    print("模型加载完成。")
 
 
 def audio_to_text(audio_float):
@@ -35,6 +37,6 @@ def audio_to_text(audio_float):
     # print("\n——下一次录音——\n")
     return text
 
-# if __name__ == "__main__":
-#     while True:
-#         update_fun()
+if __name__ == "__main__":
+    audio_float = getAudioFloatFromWav("Temp/inputWords.wav")
+    audio_to_text(audio_float)

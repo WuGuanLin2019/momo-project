@@ -1,4 +1,4 @@
-from asyncio.windows_events import NULL
+from Utils.Timer import SmallTimer
 from kokoro import KPipeline
 import numpy as np
 import librosa
@@ -7,10 +7,10 @@ import emoji
 print("加载Kokoro...")
 pipeline = KPipeline(
 	lang_code='z',
- 	repo_id= "hexgrad/Kokoro-82M"
+ 	repo_id= "hexgrad/Kokoro-82M",
+    device="cuda",
 )
 
-AUDIO_OUTPUT_FILE = "Temp/output.wav"
 SAMPLE_RATE = 24000
 
 def trim_excess_trailing_silence(audio, sr, top_db=30, max_allowed_silence=0.0):
@@ -29,21 +29,29 @@ def trim_excess_trailing_silence(audio, sr, top_db=30, max_allowed_silence=0.0):
     return audio
 
 def text_to_audioData(text):
-    if text == NULL or text == "":
-        return
+    if text is None or text == "":
+        return None, None
 
     text = emoji.replace_emoji(text, replace='')  # 直接删除
+    text = text.replace('\n', '。')     #换行时语音会截断
 
     # 生成音频，只取第一个结果（通常只有一个）
     generator = pipeline(text, voice='zf_xiaoxiao')
+
     for _, _, audio in generator:
         if hasattr(audio, 'cpu'):
-            audio = audio.cpu()      # 确保在 CPU 上
+            with SmallTimer("cpu tts"):
+                audio = audio.cpu()      # 确保在 CPU 上
         if hasattr(audio, 'numpy'):
-            audio = audio.numpy()    # 转成 numpy
-        audio = audio.astype(np.float32)
+            with SmallTimer("numpy tts"):
+                audio = audio.numpy()    # 转成 numpy
+        with SmallTimer("np asType tts"):
+            audio = audio.astype(np.float32)
 
         trimmed_audio = trim_excess_trailing_silence(audio,SAMPLE_RATE)
         return trimmed_audio, SAMPLE_RATE   # (audio_data, sample_rate)
 
     return None, None
+
+if __name__ == "__main__":
+    text_to_audioData("介绍一下你自己")

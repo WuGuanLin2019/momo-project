@@ -13,6 +13,8 @@ class AssistantPipeline:
         self.to_speak_queue = queue.Queue()  # think -> speak
         
         self.control_queue = queue.Queue()  # 一个控制队列,处理打断
+
+        self.event_is_talking = threading.Event()
         
         self.threads = []
 
@@ -21,13 +23,13 @@ class AssistantPipeline:
     def start(self):
         # 将队列作为参数显式传递给各线程
         listen_thread = threading.Thread(
-            target=listener_loop, args=(self.input_text_queue,self.state)
+            target=listener_loop, args=(self.input_text_queue,self.state,self.event_is_talking)
         )
         think_thread = threading.Thread(
             target=brain_loop, args=(self.input_text_queue, self.to_speak_queue,self.state)
         )
         speak_thread = threading.Thread(
-            target=express_loop, args=(self.to_speak_queue,self.state)
+            target=express_loop, args=(self.to_speak_queue,self.state,self.event_is_talking)
         )
         self.threads = [listen_thread, think_thread, speak_thread]
 

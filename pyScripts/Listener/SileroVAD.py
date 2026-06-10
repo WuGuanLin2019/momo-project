@@ -1,4 +1,5 @@
 from queue import Empty, Queue
+import threading
 import keyboard
 import sounddevice as sd
 import numpy as np
@@ -15,7 +16,7 @@ CHANNELS = 1
 BLOCK_SIZE = 512  # Silero VAD 标准块大小（32ms @ 16kHz）
 
 # VAD 参数
-SPEECH_THRESHOLD = 0.5  # 语音概率阈值
+SPEECH_THRESHOLD = 0.7  # 语音概率阈值
 SILENCE_DURATION = 0.8  # 静音持续多少秒后停止录音（容忍停顿）
 MIN_SPEECH_DURATION = 0.3  # 最短有效语音时长，避免误触发
 
@@ -37,9 +38,10 @@ SPEECH_BLOCKS_MIN = int(MIN_SPEECH_DURATION * FS / BLOCK_SIZE)
 
 
 class AudioListener:
-    def __init__(self,pipelineState:GenerationState):
+    def __init__(self,pipelineState:GenerationState, event_is_talking:threading.Event):
         self.result_queue = Queue()
         self.pipelineState = pipelineState
+        self.event_is_talking = event_is_talking
 
         # 状态变量
         self.audio_buffer = []  # 录音数据累积
@@ -72,6 +74,10 @@ class AudioListener:
         audio_tensor = torch.from_numpy(audio_chunk)
         speech_prob = model(audio_tensor, FS).item()
 
+        if self.event_is_talking.is_set():
+            SPEECH_THRESHOLD = 0.9
+        else:
+            SPEECH_THRESHOLD = 0.7
         if speech_prob > SPEECH_THRESHOLD:
             self.speech_blocks += 1
             self.silence_blocks = 0
@@ -107,10 +113,6 @@ class AudioListener:
     def auto_record(self):
         try:            
             while True:
-                if keyboard.is_pressed("Esc"):
-                    print("中断操作")
-                    break
-
                 try:
                     audio_np = self.result_queue.get(timeout=0.2)  # 0.2 秒醒一次
                 except Empty:
