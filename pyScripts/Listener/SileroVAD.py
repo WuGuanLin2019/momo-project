@@ -16,9 +16,12 @@ CHANNELS = 1
 BLOCK_SIZE = 512  # Silero VAD 标准块大小（32ms @ 16kHz）
 
 # VAD 参数
-SPEECH_THRESHOLD = 0.7  # 语音概率阈值
+SPEECH_THRESHOLD = 0.8  # 语音概率阈值
 SILENCE_DURATION = 0.8  # 静音持续多少秒后停止录音（容忍停顿）
 MIN_SPEECH_DURATION = 0.3  # 最短有效语音时长，避免误触发
+
+# 音量阈值（RMS）
+VOLUME_THRESHOLD = 0.15
 
 # RingBuffer 预留 ms 数
 RING_MS = 500  # 缓存最近 300ms
@@ -64,11 +67,15 @@ class AudioListener:
     def callback(self,indata, frames, time, status):
         if status:
             print(f"⚠️ 状态异常: {status}")
+            return
 
         # 提取单声道音频
         audio_chunk = indata[:, 0].copy()
 
         ring_buffer.extend(audio_chunk)
+
+        #检测响度
+        rms = np.sqrt(np.mean(audio_chunk ** 2))
 
         # ---- 转换为 Tensor 后再送入 VAD ----
         audio_tensor = torch.from_numpy(audio_chunk)
@@ -77,18 +84,19 @@ class AudioListener:
         if self.event_is_talking.is_set():
             SPEECH_THRESHOLD = 0.9
         else:
-            SPEECH_THRESHOLD = 0.7
-        if speech_prob > SPEECH_THRESHOLD:
+            SPEECH_THRESHOLD = 0.8
+        if speech_prob > SPEECH_THRESHOLD and rms > VOLUME_THRESHOLD:
             self.speech_blocks += 1
             self.silence_blocks = 0
             if not self.is_speaking and self.speech_blocks >= SPEECH_BLOCKS_MIN:
+                # 这时候打断所有流程，重新开始，注意记录已经表达的上下文
+                self.pipelineState.add_generation()
+
+                print("🎤 检测到语音，开始录音...")
                 self.is_speaking = True
                 self.audio_buffer.extend(list(ring_buffer))
                 ring_buffer.clear()
-
-                print("🎤 检测到语音，开始录音...")
-                # 这时候打断所有流程，重新开始，注意记录已经表达的上下文
-                self.pipelineState.add_generation()
+                
 
             if self.is_speaking:
                 self.audio_buffer.extend(audio_chunk)

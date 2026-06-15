@@ -5,8 +5,8 @@ from Listener.Faster_Whisper import audio_to_text
 from Listener.SileroVAD import AudioListener
 
 
-def loop(input_text_queue: queue.Queue, pipelineState: GenerationState):
-    audioListener = AudioListener(pipelineState)
+def listen_loop(input_text_queue: queue.Queue, pipelineState: GenerationState,  event_is_talking):
+    audioListener = AudioListener(pipelineState,event_is_talking)
     generate_state = GenerationState()
     def check_generate_break():
         return not pipelineState.check_is_current_generation(generate_state)

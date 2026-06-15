@@ -38,18 +38,19 @@ def text_to_audioData(text):
     # 生成音频，只取第一个结果（通常只有一个）
     generator = pipeline(text, voice='zf_xiaoxiao')
 
-    for _, _, audio in generator:
-        if hasattr(audio, 'cpu'):
-            with SmallTimer("cpu tts"):
+    with SmallTimer("tts"):
+        for _, _, audio in generator:
+            if hasattr(audio, 'cpu'):
+                # with SmallTimer("cpu tts"):
                 audio = audio.cpu()      # 确保在 CPU 上
-        if hasattr(audio, 'numpy'):
-            with SmallTimer("numpy tts"):
+            if hasattr(audio, 'numpy'):
+                # with SmallTimer("numpy tts"):
                 audio = audio.numpy()    # 转成 numpy
-        with SmallTimer("np asType tts"):
+            # with SmallTimer("np asType tts"):
             audio = audio.astype(np.float32)
 
-        trimmed_audio = trim_excess_trailing_silence(audio,SAMPLE_RATE)
-        return trimmed_audio, SAMPLE_RATE   # (audio_data, sample_rate)
+            trimmed_audio = trim_excess_trailing_silence(audio,SAMPLE_RATE)
+            return trimmed_audio, SAMPLE_RATE   # (audio_data, sample_rate)
 
     return None, None
 

@@ -114,7 +114,7 @@ class VTubeClient:
         if audio_data is None:
             return
 
-        print("👄 计算口型数据...")
+        # print("👄 计算口型数据...")
         # 确保是 float32 且归一化到 [-1, 1]
         if audio_data.dtype != np.float32:
             audio_data = audio_data.astype(np.float32)
@@ -152,13 +152,13 @@ class VTubeClient:
             if check_generate_break():
                 if playObject and playObject.is_playing():
                     playObject.stop()
-                print("嘴型中断")
+                # print("嘴型中断")
                 self.send_mouth_param(0)
                 return
             time.sleep(1 / FRAME_RATE)
 
 
-        print("✅ 嘴型结束")
+        # print("✅ 嘴型结束")
         return True
 
     def reconnect_loop(self):

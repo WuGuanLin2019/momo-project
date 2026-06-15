@@ -1,5 +1,6 @@
 import time
 from Core.Pipeline import AssistantPipeline
+import sys
 
 
 mainP = AssistantPipeline()
@@ -14,3 +15,5 @@ try:
 except KeyboardInterrupt:
     # mainP.shut_down()
     print("\n用户手动退出，程序结束")
+    
+    sys.exit(0)

@@ -1,1 +1,1 @@
-from .Brain import loop
+from .Brain import brain_loop as loop

@@ -9,9 +9,10 @@ CHANNELS = 1  # 单声道
 with SmallTimer("加载Whisper模型"):
     print("加载Whisper模型...")
     model = WhisperModel(
-        # "large-v3",
-        "small",
-        device="cuda",
+        "large-v3",
+        # "medium",
+        # "small",
+        # device="cuda",
         compute_type="float16"
     )
     print("模型加载完成。")
@@ -24,7 +25,7 @@ def audio_to_text(audio_float):
     segments, info = model.transcribe(
         audio_float,
         language="zh",
-        beam_size=5,
+        beam_size=9,
         vad_filter=True,
         initial_prompt="以下内容是普通话或者粤语。"
     )
@@ -34,6 +35,8 @@ def audio_to_text(audio_float):
 
     text = text.strip()
     print("识别结果:", text)
+    if "明镜与点点" in text:
+        text = ""
     # print("\n——下一次录音——\n")
     return text
 
