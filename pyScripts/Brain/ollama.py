@@ -5,21 +5,33 @@ from Core.State import GenerationState
 from Utils.Timer import SmallTimer
 from ollama import chat 
 
-def when_think_end(sh:SentenceHandler):
+def when_think_end(sh:SentenceHandler,add_to_input_queue):
+    print("Brain end")
     conversation.append(
         {
             "role": "assistant",
             "content": sh.content,
-            # "thinking": sh.thinking,
             "tool_calls": sh.tool_calls,
         }
     )
 
     #调用工具
     if sh.tool_calls:
-        results = call_tool(sh.tool_calls)
+        try:
+            results = call_tool(sh.tool_calls)
+            handle_results(results,add_to_input_queue)
+        except Exception as e:
+            print(f"call_tool error:{e}")
 
-def think(inputStr, callBack, myGen: GenerationState, pipeGen: GenerationState):
+def handle_results(results,add_to_input_queue):
+    for k,v in results.items():
+        print(k,v)
+        add_to_input_queue(v)
+        # if k == "remind" or k == "note_memory":
+        #     add_to_input_queue(v)
+
+        
+def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationState, pipeGen: GenerationState):
     with pipeGen.lock:
         myGen.generation = pipeGen.generation
 
@@ -40,7 +52,7 @@ def think(inputStr, callBack, myGen: GenerationState, pipeGen: GenerationState):
         options={
             # "num_predict": 256,
             "repeat_penalty": 1.3,
-            "temperature": 0.1,
+            "temperature": 0.5,
             "top_k": 40,
             "top_p": 0.9,
         },
@@ -52,20 +64,18 @@ def think(inputStr, callBack, myGen: GenerationState, pipeGen: GenerationState):
     try:
         for chunk in stream:
             if not pipeGen.check_is_current_generation(myGen):
-                when_think_end(sentenceHandler)
-                stream.close()
+                when_think_end(sentenceHandler,add_to_input_queue)
                 break
 
             currentSteamingText = sentenceHandler.handleStreamingText(chunk)
             if currentSteamingText:
-                callBack(currentSteamingText)
+                add_to_speak_queue(currentSteamingText)
     except Exception as e:
         print(f"stream error:{e}")
-        stream.close()
 
     if pipeGen.check_is_current_generation(myGen):
-        when_think_end(sentenceHandler)
+        when_think_end(sentenceHandler,add_to_input_queue)
 
 
-if __name__ == "__main__":
-    think("介绍一下你自己")
+# if __name__ == "__main__":
+#     think("介绍一下你自己")
