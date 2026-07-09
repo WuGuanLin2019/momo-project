@@ -1,3 +1,7 @@
+import os
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"   # <-- 添加这一行，必须在所有 import 之前
+
+
 import time
 from Core.Pipeline import AssistantPipeline
 import sys

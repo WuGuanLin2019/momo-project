@@ -10,3 +10,5 @@ os.makedirs(MEMORY_DIR, exist_ok=True)
 # 最终的 db 路径
 DB_PATH = os.path.join(MEMORY_DIR, "momo_memory.db")
 FAISS_PATH = os.path.join(MEMORY_DIR, "embeddingDic.faiss")
+
+#临时资源

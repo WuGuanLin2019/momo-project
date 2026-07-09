@@ -13,7 +13,7 @@ pipeline = KPipeline(
 
 SAMPLE_RATE = 24000
 
-def trim_excess_trailing_silence(audio, sr, top_db=30, max_allowed_silence=0.0):
+def trim_excess_trailing_silence(audio:np.float32, sr, top_db=30, max_allowed_silence=0.0):
     # max_allowed_silence: 允许保留的最大尾部静音长度(秒)
     
     # 1. 先用 librosa 获取有效音频的起止索引

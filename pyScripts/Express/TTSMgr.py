@@ -1,11 +1,7 @@
-class TTSQueuer:
-    audio2text_queue = []
+# from .Kokoro import text_to_audioData
+# from Express.Moss import tts_synthesize
+from Express.TTS_Client import request_audio_data
 
-    def AddSpeakStr(this, str):
-        this.audio2text_queue.append(str)
 
-    def ClearSpeakQueue(this):
-        this.audio2text_queue.clear()
-
-    def Loop(this):
-        pass
+def ttsData(text) :
+    return request_audio_data(text)

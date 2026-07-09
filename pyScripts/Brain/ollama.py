@@ -51,7 +51,7 @@ def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationStat
         think = False,
         options={
             # "num_predict": 256,
-            "repeat_penalty": 1.3,
+            "repeat_penalty": 1,
             "temperature": 0.5,
             "top_k": 40,
             "top_p": 0.9,

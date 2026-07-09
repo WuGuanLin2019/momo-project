@@ -3,9 +3,8 @@ import threading
 from Body.VTube.VTube import VTubeClient
 import numpy as np
 from Core.State import GenerationState, SpeakTask
-from Utils.Tool import clearQueue
 import simpleaudio as sa
-from Express.Kokoro import text_to_audioData
+from .TTSMgr import ttsData
 
 MomoVTube = VTubeClient()
 MomoVTube.start()
@@ -29,7 +28,7 @@ def loop(to_speak_queue:queue.Queue[SpeakTask], pipelineState:GenerationState, e
         if speak_task.text.strip() == "":
             continue
 
-        audio_data, sample_rate = text_to_audioData(speak_task.text)
+        audio_data, sample_rate = ttsData(speak_task.text)
 
         def check_generate_break():
             return not pipelineState.check_is_current_generation(speak_task.generation_id)
