@@ -28,7 +28,11 @@ def loop(to_speak_queue:queue.Queue[SpeakTask], pipelineState:GenerationState, e
         if speak_task.text.strip() == "":
             continue
 
-        audio_data, sample_rate = ttsData(speak_task.text)
+        try:
+            audio_data, sample_rate = ttsData(speak_task.text)
+        except Exception as e:
+            print(f"tts错误：{e}")
+            continue
 
         def check_generate_break():
             return not pipelineState.check_is_current_generation(speak_task.generation_id)

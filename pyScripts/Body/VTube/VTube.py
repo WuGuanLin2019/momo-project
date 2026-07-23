@@ -146,19 +146,37 @@ class VTubeClient:
 
         playObject = startCB(audio_data,sample_rate)
 
-        # 按帧发送嘴型
-        for v in volumes:
-            self.send_mouth_param(min(max(v * 1.5, 0), 1))
+        
+        start_time = time.perf_counter()
+        total_frames = len(volumes)
+        last_frame_idx = -1
+        while True:
             if check_generate_break():
                 if playObject and playObject.is_playing():
                     playObject.stop()
-                # print("嘴型中断")
                 self.send_mouth_param(0)
                 return
+
+            elapsed = time.perf_counter() - start_time
+            frame_idx = int(elapsed * FRAME_RATE)
+
+            if frame_idx >= total_frames:
+                break
+
+            if frame_idx != last_frame_idx:
+                self.send_mouth_param(min(max(volumes[frame_idx] * 1.5, 0), 1))
+                last_frame_idx = frame_idx
+
+            # 睡到下一帧理论时间点，补偿 send/check 耗时
+            # next_time = start_time + (frame_idx + 1) / FRAME_RATE
+            # sleep_time = next_time - time.perf_counter()
+            # if sleep_time > 0:
+            #     time.sleep(sleep_time)
             time.sleep(1 / FRAME_RATE)
 
 
         # print("✅ 嘴型结束")
+        self.send_mouth_param(0)
         return True
 
     def reconnect_loop(self):

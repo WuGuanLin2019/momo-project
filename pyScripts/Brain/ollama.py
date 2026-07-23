@@ -26,7 +26,11 @@ def when_think_end(sh:SentenceHandler,add_to_input_queue):
 def handle_results(results,add_to_input_queue):
     for k,v in results.items():
         print(k,v)
-        add_to_input_queue(v)
+        if k == "web_search":
+            v = v + "\n提取关键信息即可，总结成通俗易懂的几句话告知用户。"
+            add_to_input_queue(v)
+        else:
+            add_to_input_queue(v)
         # if k == "remind" or k == "note_memory":
         #     add_to_input_queue(v)
 
@@ -51,7 +55,7 @@ def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationStat
         think = False,
         options={
             # "num_predict": 256,
-            "repeat_penalty": 1,
+            "repeat_penalty": 1.3,
             "temperature": 0.5,
             "top_k": 40,
             "top_p": 0.9,

@@ -1,61 +1,8 @@
-from enum import Enum
+
 from Memory.MemoryDB import MemoryData
 from Memory.MemoryMgr import RecallData, memory_mgr
 import re
-
-
-class ActionType(Enum):
-    Memory = 1
-
-
-ACTION_CONFIG = {
-    ActionType.Memory: {
-        "note": {"fun": memory_mgr.note, "pattern": r"【记住记忆：(.+?)】"},
-        "remind": {"fun": memory_mgr.remind, "pattern": r"【获取记忆：(.+?)】"},
-    }
-}
-
-
-class Action:
-    def __init__(self, actionType: ActionType):
-        self.actionType = actionType
-
-    def start(self, subActionType: str, inputStr: str):
-        if not inputStr:
-            return
-        if self.actionType not in ACTION_CONFIG:
-            print(f"未配置 action: {self.actionType.name}")
-            return
-
-        action = ACTION_CONFIG[self.actionType]
-
-        if subActionType not in action:
-            print(f"未配置action fun: {subActionType}")
-            return
-        subAction = action[subActionType]
-
-        pattern = subAction.get("pattern")
-        fun = subAction.get("fun")
-        if not pattern:
-            print(f"未配置subaction pattern: {subActionType}")
-            return
-        if not fun:
-            print(f"未配置subaction fun: {subActionType}")
-            return
-
-        kh = KeyWordHandler(pattern)
-        dataStr = kh.fun(inputStr)
-        # fun(dataStr)
-
-
-class KeyWordHandler:
-    def __init__(self, pattern) -> None:
-        self.pattern = pattern
-
-    def fun(self, inputStr: str):
-        # 注意这里去掉了空格，那么pattern里也不能有空格！
-        result = re.findall(self.pattern, inputStr.strip())
-        return result
+from MCP.WebSearch import WebSearchMgr
 
 
 def note_memory(content: str, summary: list[str]) -> str:
@@ -159,8 +106,35 @@ def change_thought(mid:str, content: str, summary: list[str]) -> str:
     else:
         return "重写记忆失败"
 
+def get_now_time():
+    """
+    当你想获取当前时间，调用此函数。
+    返回格式：YYYY-MM-DD HH:MM:SS 的本地时间字符串。
+    """
+    from datetime import datetime
+    return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-Tools = [note_memory, remind, change_thought]
+
+def web_search(query:str)->str:
+    """
+    当你需要获取当前不存在于知识库中的外部信息时调用。
+
+    适用：
+    - 最新新闻
+    - 当前事件
+    - 不确定的事实
+    - 需要互联网资料的问题
+
+    不适用：
+    - 已知知识回答
+
+    参数:
+    query: 搜索关键词
+    """
+    return "以下是搜索结果：\n" + WebSearchMgr.web_search(query)
+
+
+Tools = [web_search, note_memory, remind, change_thought,get_now_time]
 ToolsMap = {func.__name__: func for func in Tools}
 
 def call_tool(tool_calls):

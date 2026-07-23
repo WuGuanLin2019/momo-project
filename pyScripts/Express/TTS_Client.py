@@ -4,9 +4,11 @@ import requests
 import io
 import soundfile as sf
 
+TTS_PORT = 5004
+
 def request_audio_data(text):
     #使用melo
-    resp = requests.post("http://127.0.0.1:5003/tts", json={"text": text}, timeout=180)
+    resp = requests.post(f"http://127.0.0.1:{TTS_PORT}/tts", json={"text": text}, timeout=180)
     print(f"[tts_client] status={resp.status_code}, content-type={resp.headers.get('content-type')}, len={len(resp.content)}")
     
     if resp.status_code != 200:

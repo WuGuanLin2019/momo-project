@@ -6,6 +6,7 @@ from Brain import loop as brain_loop
 from Express import loop as express_loop
 
 
+
 class AssistantPipeline:
     def __init__(self):
         # 主线程创建所有队列，成为唯一的数据流管理者
@@ -25,6 +26,7 @@ class AssistantPipeline:
         listen_thread = threading.Thread(
             target=listener_loop, args=(self.input_text_queue,self.state,self.event_is_talking)
         )
+
         think_thread = threading.Thread(
             target=brain_loop, args=(self.input_text_queue, self.to_speak_queue,self.state)
         )

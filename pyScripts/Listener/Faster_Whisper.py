@@ -20,7 +20,7 @@ with SmallTimer("加载Whisper模型"):
 
 def audio_to_text(audio_float):
     if audio_float is None:
-        return
+        return None,True
     
     segments, info = model.transcribe(
         audio_float,
@@ -38,7 +38,7 @@ def audio_to_text(audio_float):
     if "明镜与点点" in text:
         text = ""
     # print("\n——下一次录音——\n")
-    return text
+    return text,True
 
 if __name__ == "__main__":
     audio_float = getAudioFloatFromWav("Temp/inputWords.wav")

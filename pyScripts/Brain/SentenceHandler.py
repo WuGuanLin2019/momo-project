@@ -1,6 +1,6 @@
 
 
-TEXT_CUT = ["【","！", "。", "？", "，", "!", "："]
+TEXT_CUT = ["！", "。", "？", "，", "!", "：","~",",",".",":"]
 
 class SentenceHandler:
     def __init__(self) -> None:
