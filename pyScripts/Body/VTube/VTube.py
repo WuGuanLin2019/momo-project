@@ -5,6 +5,8 @@ import time
 import numpy as np
 import threading
 
+from Utils.Timer import SmallTimer
+
 # ----------------------------
 # 配置部分
 # ----------------------------
@@ -140,12 +142,13 @@ class VTubeClient:
         if not self.connected:  
             return
 
+        volumes = []
+        # with SmallTimer("cal_volumes"):
         volumes = self.cal_volumes(audio_data, sample_rate)
         if volumes is None:
             return 
 
         playObject = startCB(audio_data,sample_rate)
-
         
         start_time = time.perf_counter()
         total_frames = len(volumes)
@@ -167,11 +170,6 @@ class VTubeClient:
                 self.send_mouth_param(min(max(volumes[frame_idx] * 1.5, 0), 1))
                 last_frame_idx = frame_idx
 
-            # 睡到下一帧理论时间点，补偿 send/check 耗时
-            # next_time = start_time + (frame_idx + 1) / FRAME_RATE
-            # sleep_time = next_time - time.perf_counter()
-            # if sleep_time > 0:
-            #     time.sleep(sleep_time)
             time.sleep(1 / FRAME_RATE)
 
 

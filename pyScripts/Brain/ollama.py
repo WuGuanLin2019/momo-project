@@ -42,7 +42,7 @@ def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationStat
     conversation.append({"role": "user", "content": inputStr})
 
     stream = chat(
-        # gemma3:1b
+        # gemma3:1b,
         # qwen2.5:3b-instruct-q4_K_M
         # llama3.1
         # qwen2.5:14b-instruct-q4_K_M
@@ -68,6 +68,7 @@ def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationStat
     try:
         for chunk in stream:
             if not pipeGen.check_is_current_generation(myGen):
+                print("思考中断")
                 when_think_end(sentenceHandler,add_to_input_queue)
                 break
 
@@ -78,6 +79,7 @@ def think(inputStr, add_to_speak_queue,add_to_input_queue, myGen: GenerationStat
         print(f"stream error:{e}")
 
     if pipeGen.check_is_current_generation(myGen):
+        print("思考正常结束")
         when_think_end(sentenceHandler,add_to_input_queue)
 
 

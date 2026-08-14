@@ -10,6 +10,7 @@ import torch
 from collections import deque
 
 from Core.State import GenerationState
+import time
 
 
 # 音频参数
@@ -253,6 +254,7 @@ class AudioStreamListener:
                 duration = len(self.audio_buffer) / FS      
                                 
                 if duration < 0.25 and not self.to_send_last_audio_chunk:
+                    time.sleep(0.01)
                     continue
             
                 print(f"duration:{duration}, isDone:{self.to_send_last_audio_chunk}")

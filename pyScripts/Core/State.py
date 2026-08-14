@@ -19,6 +19,9 @@ class GenerationState:
                 result = diffGenerationState.generation == self.generation
             elif isinstance(diffGenerationState,int):
                 result = diffGenerationState == self.generation
+
+            if not result:
+                print(f"GId不同，中断")
             return result
  
 

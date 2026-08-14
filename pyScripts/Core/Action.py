@@ -131,7 +131,7 @@ def web_search(query:str)->str:
     参数:
     query: 搜索关键词
     """
-    return "以下是搜索结果：\n" + WebSearchMgr.web_search(query)
+    return WebSearchMgr.web_search(query)+ "\n以上是网络的搜索结果，根据需要来提取信息进行回答吧。\n"
 
 
 Tools = [web_search, note_memory, remind, change_thought,get_now_time]

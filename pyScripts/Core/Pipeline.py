@@ -19,7 +19,7 @@ class AssistantPipeline:
         
         self.threads = []
 
-        self.state = GenerationState(-1)
+        self.state = GenerationState()
 
     def start(self):
         # 将队列作为参数显式传递给各线程

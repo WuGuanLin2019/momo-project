@@ -4,7 +4,7 @@ from Core.State import GenerationState
 from Utils.Tool import clearQueue
 from Listener.Faster_Whisper import audio_to_text
 from Listener.SileroVAD import AudioBufferData, AudioListener, AudioStreamListener
-from Listener.STT_Client import STT_Loop, interage_audio_text, request_audio_text
+from Listener.STT_Client import STT_Loop,  request_audio_text
 import threading
 
 

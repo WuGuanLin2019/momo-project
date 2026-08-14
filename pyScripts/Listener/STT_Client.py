@@ -8,16 +8,18 @@ from Utils.Tool import clearQueue
 
 STT_PORT = 5003
 
+_tts_session = requests.Session()
+
 def request_audio_text(audio_data: AudioBufferData)->tuple[str|None,bool|None]:
     abData = audio_data.audio_buffer
     if abData.size == 0 and not audio_data.is_done:
         return None, None
 
     # print(f"audio_data:{audio_data}")
-    resp = requests.post(
+    resp = _tts_session.post(
         f"http://127.0.0.1:{STT_PORT}/stt/fun",
         json={"audio_buffer": abData.tolist(), "is_done": audio_data.is_done},
-        timeout=10,
+        timeout=60,
     )
     # print(
     #     f"[stt_client] status={resp.status_code}, content-type={resp.headers.get('content-type')}, len={len(resp.content)}"
@@ -38,7 +40,7 @@ def request_audio_text(audio_data: AudioBufferData)->tuple[str|None,bool|None]:
 
 
 def interage_audio_text():
-    resp = requests.post(f"http://127.0.0.1:{STT_PORT}/stt/interage", timeout=10)
+    resp = _tts_session.post(f"http://127.0.0.1:{STT_PORT}/stt/interage", timeout=10)
     print(
         f"[stt_client] 语音识别中断 status={resp.status_code}, content-type={resp.headers.get('content-type')}, len={len(resp.content)}"
     )

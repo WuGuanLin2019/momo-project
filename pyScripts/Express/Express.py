@@ -4,6 +4,8 @@ from Body.VTube.VTube import VTubeClient
 import numpy as np
 from Core.State import GenerationState, SpeakTask
 import simpleaudio as sa
+
+from Utils.Timer import SmallTimer
 from .TTSMgr import ttsData
 
 MomoVTube = VTubeClient()
